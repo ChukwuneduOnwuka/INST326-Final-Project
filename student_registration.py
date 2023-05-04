@@ -14,51 +14,46 @@ UMD_MAJORS = {
     'School of Nursing': ['Nursing']
 }
 
-class Student:
-    """Class that repesents student information
+class Person:
+    """Class that represents a person
     Attributes:
-        student_id(int): Unqiue id for each student
-        name(string): Name of each student
-        major(string): Each students major
-        phone(int): Students phone number
-        email(string): Students email
+        name(str): Name of the person
+        email(str): Email of the person
+    """
+    def __init__(self, name, email):
+        self.name = name
+        self.email = email
+
+class Student(Person):
+    """Class that represents student information
+    Attributes:
+        student_id(int): Unique id for each student
+        major(str): Each student's major
+        phone(int): Student's phone number
         credits(int): How many credits a student has
     
     """
-    def __init__(self, student_id, name, major, phone, email, credits):
-        """Intializes student object
+    def __init__(self, student_id, name, major, email, credits):
+        super().__init__(name, email)
         
-        Attributes:
-            student_id(int): Unqiue id for each student
-            name(string): Name of each student
-            major(string): Each students major
-            phone(int): Students phone number
-            email(string): Students email
-            credits(int): How many credits a student has
-        
-        
-        """
-        if not isinstance(student_id, int):
-            return TypeError
-        
-        if not isinstance(phone, int):
-            return TypeError
-        
+        if not isinstance(student_id, int) or not isinstance(student_id,str):
+            return TypeError("student id must be a int or str")
         id_match = re.match(r'^117\d{5}$', student_id)
-        phone_match =  re.match(r'^\d{10}$' ,phone)
-        
         if not id_match:
-            raise ValueError("Invalid student ID")
-        if not phone_match:
-            raise ValueError("Invalud phone number")
+            raise ValueError("Invalid student ID")  
+        else:
+            self.student_id = student_id 
         
+        valid_majors = []
+        for majors in UMD_MAJORS.values():
+            valid_majors.extend(majors)
         
-        self.student_id = student_id
-        self.name = name
+        if major not in valid_majors:
+            raise ValueError("Invalid major")
         self.major = major
-        self.phone = phone
-        self.email = email
-        self.credits = credits
+        
+        self.credits = credits if isinstance(credits, int) and credits >= 0 and 12 <= credits <= 18 else None
+
         
 class Course:
     """Class that represents class information
