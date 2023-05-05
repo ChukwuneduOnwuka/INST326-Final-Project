@@ -66,7 +66,7 @@ class Course:
 
     """
     
-    def __init__(self, name, section_number, credit_required, open_slots):
+    def __init__(self, name, section_number, open_slots=20):
         """Intializes course object
         
         Attributes:
@@ -79,9 +79,16 @@ class Course:
         """
         self.name = name
         self.section_number = section_number
-        self.credit_required = credit_required
         self.open_slots = open_slots
         self.enrollments = []
+        
+        with open("course_classes.txt.rtf", "r", encoding="utf-8") as f:
+            for line in f:
+                regular_expression = r"^(.+?)\s+(\d+)\s+(\d+)$"
+                match = re.search(regular_expression, line)
+                self.class_name = match.group(1)
+                self.section_number = match.group(2)
+                self.open_slots = match.group(3)
     
         
 class Registration:
