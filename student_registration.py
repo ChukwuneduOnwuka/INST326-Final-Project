@@ -63,7 +63,7 @@ class Student:
 class Course:
     """Class that represents class information
     
-    
+
     """
     
     def __init__(self, name, section_number, credit_required, open_slots):
@@ -83,7 +83,7 @@ class Course:
         self.open_slots = open_slots
         self.enrollments = []
     
-
+        
 class Registration:
     
     def __init__(self):
