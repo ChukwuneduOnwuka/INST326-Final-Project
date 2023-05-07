@@ -96,13 +96,40 @@ class Registration:
         self.courses = []
         self.course_database = []
         
-    def add_student(self, student):
+    def add_student(self):
         """Add student to a course
         
         Attributes:
             student(Student): Student to be added
         
         """
+
+        student_name = input("Enter student name: ")
+
+        course_name = input("Enter course name: ")
+        section_number = input("Enter section number: ")
+
+        for course in self.courses:
+            if course.name == course.name and course.section_number == section_number:
+          
+                for enrollment in course.enrollments: 
+                    if enrollment.name == student_name:
+                        print(f"Error: {student_name} is already enrolled in {course_name} - Section {section_number}")
+                        return
+                if course.open_slots > 0:
+             
+                    student = Student(student_name)
+                    course.enrollments.append(student)
+                    course.open_slots -= 1
+                    student.credits += course.credits
+                    print(f"{student_name} has been enrolled in {course_name} - Section {section_number}")
+                    return
+               
+                print(f"Error: No open slots available for {course_name} - Section {section_number}")
+                return
+
+    
+        print(f"Error: Course {course_name} - Section {section_number} not found.")
         return
     
     def remove_student(self,student):
@@ -112,7 +139,26 @@ class Registration:
             student(Student): student to be removed
         
         """
-        return
+        student_name = input("Enter student name: ")
+
+        course_name = input("Enter course name: ")
+        section_number = input("Enter section number: ")
+
+        for course in self.courses:
+            if course.name == course.name and course.section_number == section_number:
+        
+                for enrollment in course.enrollments: 
+                    if enrollment.name == student_name:
+                        course.enrollments.remove(enrollment)
+                        course.open_slots += 1
+                        enrollment.credits -= course.credits
+                        print(f"{student_name} has been removed from {course_name} - Section {section_number}")
+                        return
+    
+                    print(f"Error: {student_name} is not enrolled in {course_name} - Section {section_number}")
+                    return
+            print(f"Error: Course {course_name} - Section {section_number} not found.")
+                        
         
         
     def add_course(self, course):
