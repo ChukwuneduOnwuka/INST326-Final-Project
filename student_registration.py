@@ -81,6 +81,7 @@ class Course:
     
     class Course:
      """Class that represents class information"""
+     
     
     def __init__(self, name, section_number, credits_required, open_slots=20):
         """Intializes course object
@@ -92,6 +93,15 @@ class Course:
             open_slots(int): How many open slots are available for the course
         
         """
+        
+        with open("courses_json.py", "r", encoding="utf-8") as f:
+            for line in f:
+                regular_expression = r"^(.+?)\s+(\d+)\s+(\d+)$"
+                match = re.search(regular_expression, line)
+                self.class_name = match.group(1)
+                self.section_number = match.group(2)
+                self.open_slots = match.group(3)
+    
         self.name = name
         self.section_number = section_number
         self.credits_required = credits_required
