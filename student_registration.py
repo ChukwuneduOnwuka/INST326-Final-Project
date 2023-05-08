@@ -61,27 +61,7 @@ class Course:
     
 
     """
-    
-    def __init__(self, name, section_number, open_slots=20):
-        """Intializes course object
-        
-        Attributes:
-            name(string): name of course
-            section_number(int): Unique section number of the course
-            credits_required(int): Minimum amount of credits course requires for enrollment
-            open_slots(int): How many open slots are available for the course
-        
-        
-        """
-        self.name = name
-        self.section_number = section_number
-        self.open_slots = open_slots
-        self.enrollments = []
-        self.courses = []
-    
-    class Course:
-     """Class that represents class information"""
-     
+
     
     def __init__(self, name, section_number, credits_required, open_slots=20):
         """Intializes course object
@@ -93,32 +73,45 @@ class Course:
             open_slots(int): How many open slots are available for the course
         
         """
+
         
         with open("courses_json.py", "r", encoding="utf-8") as f:
             for line in f:
                 regular_expression = r"^(.+?)\s+(\d+)\s+(\d+)$"
                 match = re.search(regular_expression, line)
-                self.class_name = match.group(1)
+                self.name = match.group(1)
                 self.section_number = match.group(2)
                 self.open_slots = match.group(3)
     
-        self.name = name
-        self.section_number = section_number
+       
         self.credits_required = credits_required
         self.open_slots = open_slots
         self.enrollments = []
+        self.waitlist = []
     
-    def add_student(self):
+    def add_student(self, student):
         """Add student to a course
         
         Attributes:
             student(Student): Student to be added
         
         """
-        student_name = input("Enter student name: ")
-        course_name = input("Enter course name: ")
-        section_number = input("Enter section number: ")
         
+        if self.open_slots <= 0:
+            print(f"No space avaiable for {self.name},{self.section_number}")
+            alternative = input("Would you like to be added to the waitlist? (y/n)")
+            if alternative == 'y':
+                self.waitlist.append(student)
+                print(f"You have been added to the waitlist for {self.name}, {self.section_number}")
+        elif student in self.enrollments:
+            print(f"{student} is already enrolled in {self.name},{self.section_number}")
+        
+        else:
+            self.enrollments.append(student)
+            self.open_slots-=1
+            print(f"{student} has been enrolled in {self.name}, {self.section_number}")
+        
+        """
         for course in self.courses:
             if course.name == course_name and course.section_number == section_number:
                 for enrollment in course.enrollments: 
@@ -133,12 +126,30 @@ class Course:
                 print(f"Error: No open slots available for {course_name} - Section {section_number}")
                 return
         print(f"Error: Course {course_name} - Section {section_number} not found.")
-    
-    def remove_student(self, student_name):
+        """
+    def remove_student(self, student):
         """Remove student from a course
         
         Attributes:
             student_name(str): name of student to be removed
+        
+        """
+        
+        if student in self.enrollments:
+            self.enrollments.remove(student)
+            self.open_slots += 1
+            print(f"{student} has been removed from {self.name}, {self.section_number}")
+            if self.waitlist:
+                student1 = self.waitlist.pop(0)
+                self.enrollments.append(student1)
+                self.open_slots -= 1
+                print(f"{student1} has been enrolled in {self.name}, {self.section_number}")
+        elif student in self.waitlist:
+            self.waitlist.remove(student)
+            print(f"{student} has been removed for the waitlist from {self.name}, {self.section_number}")
+        else:
+             print(f"Error: {student} is not enrolled in {self.name}, {self.section_number}.")
+        
         
         """
         course_name = input("Enter course name: ")
@@ -155,48 +166,8 @@ class Course:
                 print(f"Error: {student_name} is not enrolled in {course_name} - Section {section_number}")
                 return
         print(f"Error: Course {course_name} - Section {section_number} not found.")
-
-        
-class Registration:
-    
-    def __init__(self):
-        """intialize object
-        
-        
         """
-      
-        self.course_database = []
         
-    
-    
-    
-        
-    def add_course(self, course):
-        """Add a course to the registration database
-        
-        Attributes:
-            course(Course): Course to be added to registration database
-        
-        """
-        return
-        
-    def remove_course(self, course):
-        """Remove course from registration database
-        
-        Attributes:
-            course(Course): Course to be removed from registration database
-        
-        
-        """
-         
-        return
-        
-    
-    def update_database(self, database):
-        """Updates database
-        
-        """
-        return
     
     def main():
        
@@ -208,10 +179,6 @@ class Registration:
             course = Course(course_data['name'], course_data['section_number'], course_data['credits_required'], course_data['open_slots'])
             courses.append(course)
     
-    
-        registration = Registration()
-        for course in courses:
-            registration.add_course(course)
     
         student_name = input("Enter student name: ")
         student_email = input("Enter student email: ")
@@ -229,12 +196,12 @@ class Registration:
             choice = input("Enter your choice (1, 2, or 3): ")
         
             if choice == "1":
-                student.add_student()
+                course.add_student(student)
             elif choice == "2":
-                student.remove_student()
+                course.remove_student(student)
             elif choice == "3":
                  break
             else:
                 print("Invalid choice. Please enter 1, 2, or 3.")
 
-        
+   
