@@ -1,5 +1,6 @@
 import re
 import json
+
 UMD_MAJORS = {
     'A. James Clark School of Engineering': ['Aerospace Engineering', 'Chemical and Biomolecular Engineering', 'Civil and Environmental Engineering', 'Computer Engineering', 'Electrical Engineering', 'Materials Science and Engineering', 'Mechanical Engineering'],
     'College of Agriculture and Natural Resources': ['Agricultural and Resource Economics', 'Animal Sciences', 'Environmental Science and Policy', 'Plant Science'],
@@ -75,7 +76,7 @@ class Course:
         """
 
         
-        with open("courses_json.py", "r", encoding="utf-8") as f:
+        with open("courses.json", "r", encoding="utf-8") as f:
             for line in f:
                 regular_expression = r"^(.+?)\s+(\d+)\s+(\d+)$"
                 match = re.search(regular_expression, line)
@@ -169,9 +170,9 @@ class Course:
         """
         
     
-    def main():
-       
-        with open('course_json.py', 'r', encoding='utf-8') as f:
+    def main(file_path):
+        print("Running program...")
+        with open(file_path, 'r', encoding='utf-8') as f:
             coursedata = json.load(f)
         courses_data = coursedata['courses']
         courses = []
