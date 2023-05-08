@@ -1,5 +1,7 @@
 import re
 import json
+import argparse
+import sys
 
 UMD_MAJORS = {
     'A. James Clark School of Engineering': ['Aerospace Engineering', 'Chemical and Biomolecular Engineering', 'Civil and Environmental Engineering', 'Computer Engineering', 'Electrical Engineering', 'Materials Science and Engineering', 'Mechanical Engineering'],
@@ -205,4 +207,11 @@ class Course:
             else:
                 print("Invalid choice. Please enter 1, 2, or 3.")
 
-   
+def parse_args(arglist):
+    
+    parser = argparse.ArgumentParser(description = "Add or remove student to a class")
+    parser.add_argument("file_path", metavar="FILE_PATH", type=str, help="path to course file")
+    return parser.parse_args(arglist)
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
