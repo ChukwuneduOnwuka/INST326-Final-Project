@@ -62,7 +62,6 @@ class Student(Person):
         else:
             self.email = email
         
-        #self.credits = credits if isinstance(credits, int) and credits >= 0 and 12 <= credits <= 18 else None
     def __str__(self):
         return self.name + " " + self.student_id + " " + self.major + " " + self.email
         
@@ -85,7 +84,7 @@ class Course:
         """
         self.course_name = course_name
         self.section_number = section_number
-        self.slots = slots
+        self.slots = int(slots)
         self.enrollments = []
         self.waitlist = []
     
@@ -97,10 +96,6 @@ class Course:
                 if match and course_name == match.group(1) and section_number == int(match.group(2)):
                     self.slots = int(match.group(3))
                     break
-                #self.course_name = match.group(1)
-                #self.section_number = match.group(2)
-                #self.open_slots = match.group(3)
-    
        
     def add_student(self, student):
         """Add student to a course
@@ -117,29 +112,13 @@ class Course:
                 self.waitlist.append(student)
                 print(f"You have been added to the waitlist for {self.course_name}, {self.section_number}")
         elif student in self.enrollments:
-            print(f"{student} is already enrolled in {self.course_name},{self.section_number}")
+            print(f"{student.name} is already enrolled in {self.course_name},{self.section_number}")
         
         else:
             self.enrollments.append(student)
             self.slots-=1
-            print(f"{student} has been enrolled in {self.course_name}, {self.section_number}")
+            print(f"{student.name} has been enrolled in {self.course_name}, {self.section_number}")
         
-        """
-        for course in self.courses:
-            if course.name == course_name and course.section_number == section_number:
-                for enrollment in course.enrollments: 
-                    if enrollment.name == student_name:
-                        print(f"Error: {student_name} is already enrolled in {course_name} - Section {section_number}")
-                        return
-                if course.open_slots > 0:
-                    course.enrollments.append(student_name)
-                    course.open_slots -= 1
-                    print(f"{student_name} has been enrolled in {course_name} - Section {section_number}")
-                    return
-                print(f"Error: No open slots available for {course_name} - Section {section_number}")
-                return
-        print(f"Error: Course {course_name} - Section {section_number} not found.")
-        """
     def remove_student(self, student):
         """Remove student from a course
         
@@ -151,7 +130,7 @@ class Course:
         if student in self.enrollments:
             self.enrollments.remove(student)
             self.slots += 1
-            print(f"{student} has been removed from {self.course_name}, {self.section_number}")
+            print(f"{student.name} has been removed from {self.course_name}, {self.section_number}")
             if self.waitlist:
                 student1 = self.waitlist.pop(0)
                 self.enrollments.append(student1)
@@ -159,28 +138,22 @@ class Course:
                 print(f"{student1} has been enrolled in {self.course_name}, {self.section_number}")
         elif student in self.waitlist:
             self.waitlist.remove(student)
-            print(f"{student} has been removed for the waitlist from {self.course_name}, {self.section_number}")
+            print(f"{student.name} has been removed for the waitlist from {self.course_name}, {self.section_number}")
         else:
-             print(f"Error: {student} is not enrolled in {self.course_name}, {self.section_number}.")
+             print(f"Error: {student.name} is not enrolled in {self.course_name}, {self.section_number}.")
         
-        
-        """
-        course_name = input("Enter course name: ")
-        section_number = input("Enter section number: ")
-        
-        for course in self.courses:
-            if course.name == course_name and course.section_number == section_number:
-                for enrollment in course.enrollments: 
-                    if enrollment == student_name:
-                        course.enrollments.remove(enrollment)
-                        course.open_slots += 1
-                        print(f"{student_name} has been removed from {course_name} - Section {section_number}")
-                        return
-                print(f"Error: {student_name} is not enrolled in {course_name} - Section {section_number}")
-                return
-        print(f"Error: Course {course_name} - Section {section_number} not found.")
-        """
-        
+    def get_course_roster(self):
+        return self.enrollments
+    
+    def get_student_enrollments(self,student):
+        schedule = [self] if student in self.enrollments else []
+        for course in self.enrollments:
+            if course != self and student in course.enrollments:
+                schedule.append(course)
+        return schedule
+    
+    def __str__(self):
+        return f"{self.course_name} ({self.section_number}), Enrollment: {len(self.enrollments)}/{self.slots}, Waitlist: {len(self.waitlist)}"  
     
 def main(file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -196,16 +169,19 @@ def main(file_path):
         student_id = input("Enter student ID: ")
         student_major = input("Enter student major: ")
         student_email = input("Enter student email: ")
-     
+        print(f"Student Information:\nName: {student_name}\nStudent ID: {student_id}\nMajor: {student_major}\nEmail: {student_email}")
+
+
        
         student = Student(student_id, student_name, student_major, student_email)
     
         while True:
             print("\nWhat would you like to do?")
-            print("1. Add student to a course")
-            print("2. Remove student from a course")
-            print("3. Quit")
-            choice = input("Enter your choice (1, 2, or 3): ")
+            print("1. Add a course")
+            print("2. Drop a course")
+            print("3. Schedule")
+            print("4. Quit")
+            choice = input("Enter your choice (1, 2, 3, 4): ")
         
             if choice == "1":
                 course_name = input("Enter course name: ")
@@ -222,7 +198,13 @@ def main(file_path):
 
                 my_course.remove_student(student)
             elif choice == "3":
-                 break
+                schedule = course.get_student_enrollments(student)
+                print("Enrollment Schedule:")
+                for course in schedule:
+                    print(course)
+                
+            elif choice == "4":
+                break
             else:
                 print("Invalid choice. Please enter 1, 2, or 3.")
     
