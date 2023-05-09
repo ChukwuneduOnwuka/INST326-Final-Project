@@ -41,7 +41,7 @@ class Student(Person):
         super().__init__(name, email)
         
         if not isinstance(student_id, int) or not isinstance(student_id,str):
-            return TypeError("student id must be a int or str")
+            return None
         id_match = re.match(r'^117\d{5}$', student_id)
         if not id_match:
             raise ValueError("Invalid student ID")  
@@ -186,9 +186,10 @@ def main(file_path):
     
     
         student_name = input("Enter student name: ")
-        student_email = input("Enter student email: ")
-        student_major = input("Enter student major: ")
         student_id = input("Enter student ID: ")
+        student_major = input("Enter student major: ")
+        student_email = input("Enter student email: ")
+     
        
         student = Student(student_id, student_name, student_major, student_email)
     
