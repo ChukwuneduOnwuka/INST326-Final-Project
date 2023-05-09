@@ -37,12 +37,12 @@ class Student(Person):
         credits(int): How many credits a student has
     
     """
-    def __init__(self, student_id, name, major,email):
+    def __init__(self, student_id, name, major, email):
         super().__init__(name, email)
         
-        if not isinstance(student_id, int) or not isinstance(student_id,str):
-            return None
-        id_match = re.match(r'^117\d{5}$', student_id)
+        if not isinstance(student_id, (int,str)):
+            return ValueError("Invalid Student ID")
+        id_match = re.match(r'^117\d{6}$', student_id)
         if not id_match:
             raise ValueError("Invalid student ID")  
         else:
@@ -56,8 +56,15 @@ class Student(Person):
             raise ValueError("Invalid major")
         self.major = major
         
+        email_check = re.match(r'^.+@terpmail\.umd\.edu$', email)
+        if not email_check:
+            raise ValueError("Invalid email, must use university given email address.")
+        else:
+            self.email = email
+        
         #self.credits = credits if isinstance(credits, int) and credits >= 0 and 12 <= credits <= 18 else None
-
+    def __str__(self):
+        return self.name + " " + self.student_id + " " + self.major + " " + self.email
         
 class Course:
     """Class that represents class information
@@ -201,9 +208,19 @@ def main(file_path):
             choice = input("Enter your choice (1, 2, or 3): ")
         
             if choice == "1":
-                course.add_student(student)
+                course_name = input("Enter course name: ")
+                section_number = input("Enter section number: ")
+                slots = input("Enter number of slots available: ")
+                my_course = Course(course_name, section_number, slots)
+
+                my_course.add_student(student)
             elif choice == "2":
-                course.remove_student(student)
+                course_name = input("Enter course name: ")
+                section_number = input("Enter section number: ")
+                slots = input("Enter number of slots available: ")
+                my_course = Course(course_name, section_number, slots)
+
+                my_course.remove_student(student)
             elif choice == "3":
                  break
             else:
