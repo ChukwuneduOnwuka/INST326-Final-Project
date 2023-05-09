@@ -37,7 +37,7 @@ class Student(Person):
         credits(int): How many credits a student has
     
     """
-    def __init__(self, student_id, name, major, email, credits):
+    def __init__(self, student_id, name, major,email):
         super().__init__(name, email)
         
         if not isinstance(student_id, int) or not isinstance(student_id,str):
@@ -56,7 +56,7 @@ class Student(Person):
             raise ValueError("Invalid major")
         self.major = major
         
-        self.credits = credits if isinstance(credits, int) and credits >= 0 and 12 <= credits <= 18 else None
+        #self.credits = credits if isinstance(credits, int) and credits >= 0 and 12 <= credits <= 18 else None
 
         
 class Course:
@@ -66,7 +66,7 @@ class Course:
     """
 
     
-    def __init__(self, name, section_number, credits_required, open_slots=20):
+    def __init__(self, course_name, section_number, slots=20):
         """Intializes course object
         
         Attributes:
@@ -76,22 +76,25 @@ class Course:
             open_slots(int): How many open slots are available for the course
         
         """
-
+        self.course_name = course_name
+        self.section_number = section_number
+        self.slots = slots
+        self.enrollments = []
+        self.waitlist = []
+    
         
         with open("courses.json", "r", encoding="utf-8") as f:
             for line in f:
                 regular_expression = r"^(.+?)\s+(\d+)\s+(\d+)$"
                 match = re.search(regular_expression, line)
-                self.name = match.group(1)
-                self.section_number = match.group(2)
-                self.open_slots = match.group(3)
+                if match and course_name == match.group(1) and section_number == int(match.group(2)):
+                    self.slots = int(match.group(3))
+                    break
+                #self.course_name = match.group(1)
+                #self.section_number = match.group(2)
+                #self.open_slots = match.group(3)
     
        
-        self.credits_required = credits_required
-        self.open_slots = open_slots
-        self.enrollments = []
-        self.waitlist = []
-    
     def add_student(self, student):
         """Add student to a course
         
@@ -100,19 +103,19 @@ class Course:
         
         """
         
-        if self.open_slots <= 0:
-            print(f"No space avaiable for {self.name},{self.section_number}")
+        if self.slots <= 0:
+            print(f"No space avaiable for {self.course_name},{self.section_number}")
             alternative = input("Would you like to be added to the waitlist? (y/n)")
             if alternative == 'y':
                 self.waitlist.append(student)
-                print(f"You have been added to the waitlist for {self.name}, {self.section_number}")
+                print(f"You have been added to the waitlist for {self.course_name}, {self.section_number}")
         elif student in self.enrollments:
-            print(f"{student} is already enrolled in {self.name},{self.section_number}")
+            print(f"{student} is already enrolled in {self.course_name},{self.section_number}")
         
         else:
             self.enrollments.append(student)
-            self.open_slots-=1
-            print(f"{student} has been enrolled in {self.name}, {self.section_number}")
+            self.slots-=1
+            print(f"{student} has been enrolled in {self.course_name}, {self.section_number}")
         
         """
         for course in self.courses:
@@ -140,18 +143,18 @@ class Course:
         
         if student in self.enrollments:
             self.enrollments.remove(student)
-            self.open_slots += 1
-            print(f"{student} has been removed from {self.name}, {self.section_number}")
+            self.slots += 1
+            print(f"{student} has been removed from {self.course_name}, {self.section_number}")
             if self.waitlist:
                 student1 = self.waitlist.pop(0)
                 self.enrollments.append(student1)
-                self.open_slots -= 1
-                print(f"{student1} has been enrolled in {self.name}, {self.section_number}")
+                self.slots -= 1
+                print(f"{student1} has been enrolled in {self.course_name}, {self.section_number}")
         elif student in self.waitlist:
             self.waitlist.remove(student)
-            print(f"{student} has been removed for the waitlist from {self.name}, {self.section_number}")
+            print(f"{student} has been removed for the waitlist from {self.course_name}, {self.section_number}")
         else:
-             print(f"Error: {student} is not enrolled in {self.name}, {self.section_number}.")
+             print(f"Error: {student} is not enrolled in {self.course_name}, {self.section_number}.")
         
         
         """
@@ -172,14 +175,13 @@ class Course:
         """
         
     
-    def main(file_path):
-        print("Running program...")
+def main(file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
             coursedata = json.load(f)
         courses_data = coursedata['courses']
         courses = []
         for course_data in courses_data:
-            course = Course(course_data['name'], course_data['section_number'], course_data['credits_required'], course_data['open_slots'])
+            course = Course(course_data['course_name'], course_data['section_number'], course_data['slots'])
             courses.append(course)
     
     
@@ -187,9 +189,8 @@ class Course:
         student_email = input("Enter student email: ")
         student_major = input("Enter student major: ")
         student_id = input("Enter student ID: ")
-        student_credits = int(input("Enter student credits: "))
-    
-        student = Student(student_id, student_name, student_major, student_email, student_credits)
+       
+        student = Student(student_id, student_name, student_major, student_email)
     
         while True:
             print("\nWhat would you like to do?")
@@ -206,6 +207,8 @@ class Course:
                  break
             else:
                 print("Invalid choice. Please enter 1, 2, or 3.")
+    
+       
 
 def parse_args(arglist):
     
@@ -214,4 +217,6 @@ def parse_args(arglist):
     return parser.parse_args(arglist)
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    args = parse_args(sys.argv[1:])
+    main(args.file_path)
+
