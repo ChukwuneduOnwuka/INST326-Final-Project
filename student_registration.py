@@ -66,8 +66,14 @@ class Student(Person):
         return self.name + " " + self.student_id + " " + self.major + " " + self.email
         
 class Course:
-    """Class that represents class information
+    """Class that represents course information
     
+     Attributes:
+        course_name (str): The name of the course
+        section_number (int): The unique section number of the course
+        slots (int): The total number of available slots for the course
+        enrollments (list): A list of student objects currently enrolled in the course
+        waitlist (list): A list of student objects currently on the waitlist for the course
 
     """
 
@@ -76,12 +82,14 @@ class Course:
         """Intializes course object
         
         Attributes:
-            name(string): name of course
+            course_name(string): name of course
             section_number(int): Unique section number of the course
-            credits_required(int): Minimum amount of credits course requires for enrollment
-            open_slots(int): How many open slots are available for the course
+            slots(int): How many open slots are available for the course
+            
+         Side Effects:
+         Initializes a new course with the given attributes.
         
-        """
+         """
         self.course_name = course_name
         self.section_number = section_number
         self.slots = int(slots)
@@ -123,7 +131,7 @@ class Course:
         """Remove student from a course
         
         Attributes:
-            student_name(str): name of student to be removed
+            student(Student): Student to be removed
         
         """
         
@@ -143,9 +151,22 @@ class Course:
              print(f"Error: {student.name} is not enrolled in {self.course_name}, {self.section_number}.")
         
     def get_course_roster(self):
+        """Returns courses a student is currently taking.
+        
+        Returns: 
+            List of courses of current student. 
+        """
         return self.enrollments
     
     def get_student_enrollments(self,student):
+        """Add student to a course
+        
+        Attributes:
+            student(Student): Student to be added
+        
+        Returns:
+            Schedule of courses for student.        
+        """
         schedule = [self] if student in self.enrollments else []
         for course in self.enrollments:
             if course != self and student in course.enrollments:
@@ -153,9 +174,22 @@ class Course:
         return schedule
     
     def __str__(self):
+        """Returns status of a course.
+        
+        Returns:
+            Course status in readable format. 
+        """
         return f"{self.course_name} ({self.section_number}), Enrollment: {len(self.enrollments)}/{self.slots}, Waitlist: {len(self.waitlist)}"  
     
 def main(file_path):
+        """Adds, drops, or shows schedule of an inputted student using a filepath of courses.
+
+        Args:
+            filepath(str): File path for target file
+    
+        Side effects:
+            Prints to the console.
+        """
         with open(file_path, 'r', encoding='utf-8') as f:
             coursedata = json.load(f)
         courses_data = coursedata['courses']
@@ -211,7 +245,17 @@ def main(file_path):
        
 
 def parse_args(arglist):
+    """ Parse command-line arguments.
     
+    Expect one mandatory argument:
+        -str: path to text file containing courses
+
+    Args:
+        arglist (list of str): arguments from the command line.
+    
+    Returns:
+        namespace: the parsed arguments, as a namespace.
+    """
     parser = argparse.ArgumentParser(description = "Add or remove student to a class")
     parser.add_argument("file_path", metavar="FILE_PATH", type=str, help="path to course file")
     return parser.parse_args(arglist)
