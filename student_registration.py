@@ -33,11 +33,17 @@ class Student(Person):
     Attributes:
         student_id(int): Unique id for each student
         major(str): Each student's major
-        phone(int): Student's phone number
-        credits(int): How many credits a student has
-    
     """
     def __init__(self, student_id, name, major, email):
+        """Intializes the attributes and variables of the class
+        
+        Attributes:
+            student_id(int): Unique id for each student
+            name(str): Name of student
+            major(str): Each student's major
+            email(str): Stduents email
+            
+        """
         super().__init__(name, email)
         
         if not isinstance(student_id, (int,str)):
@@ -68,52 +74,74 @@ class Student(Person):
 class Course:
     """Class that represents course information
     
+<<<<<<< HEAD
      Attributes:
         course_name (str): The name of the course
         section_number (int): The unique section number of the course
         slots (int): The total number of available slots for the course
         enrollments (list): A list of student objects currently enrolled in the course
         waitlist (list): A list of student objects currently on the waitlist for the course
+=======
+    Attributes:
+        course_name (str): The name of the course
+        section_number (int): The unique section number of the course
+        enrollments (list): A list of student objects currently enrolled in the course
+        waitlist (list): A list of student objects currently on the waitlist for the course
+        max_enrollement(int): Sets the max number of student for each class at 20
+        current_enrollement(int): A counter for each class current enrollement
+>>>>>>> b6f0f04 (fixed add/remove methods and got all the code to run correctly)
 
     """
 
     
-    def __init__(self, course_name, section_number, slots=20):
+    def __init__(self, course_name, section_number, credits):
         """Intializes course object
         
         Attributes:
+<<<<<<< HEAD
             course_name(string): name of course
             section_number(int): Unique section number of the course
             slots(int): How many open slots are available for the course
             
          Side Effects:
          Initializes a new course with the given attributes.
+=======
+            course_name(str): name of course
+            section_number(str): Unique section number of the course
+            credits(int): Minimum amount of credits course requires for enrollment
+    
+         Side Effects:
+             Initializes a new course with the given attributes and opens a file.
+>>>>>>> b6f0f04 (fixed add/remove methods and got all the code to run correctly)
         
          """
         self.course_name = course_name
         self.section_number = section_number
-        self.slots = int(slots)
+        self.credits = credits
         self.enrollments = []
         self.waitlist = []
+        self.max_enrollment = 20
+        self.current_enrollment = 0
+        
     
         
         with open("courses.json", "r", encoding="utf-8") as f:
             for line in f:
-                regular_expression = r"^(.+?)\s+(\d+)\s+(\d+)$"
+                regular_expression = r'^\s*"course_name":\s*"(.+)",\s*"section_number":\s*"(\d+)",\s*"credits":\s*(\d+)\s*$'
                 match = re.search(regular_expression, line)
-                if match and course_name == match.group(1) and section_number == int(match.group(2)):
-                    self.slots = int(match.group(3))
+                if match and course_name.strip() == match.group(1).strip() and section_number == int(match.group(2)):
+                    self.credits = int(match.group(3))
                     break
        
     def add_student(self, student):
-        """Add student to a course
+        """Add student to a course or adds them to a waitlist if class is full
         
         Attributes:
             student(Student): Student to be added
         
         """
         
-        if self.slots <= 0:
+        if self.current_enrollment > self.max_enrollment:
             print(f"No space avaiable for {self.course_name},{self.section_number}")
             alternative = input("Would you like to be added to the waitlist? (y/n)")
             if alternative == 'y':
@@ -124,31 +152,37 @@ class Course:
         
         else:
             self.enrollments.append(student)
-            self.slots-=1
+            self.current_enrollment +=1
             print(f"{student.name} has been enrolled in {self.course_name}, {self.section_number}")
-        
+      
     def remove_student(self, student):
-        """Remove student from a course
+        
+        
+        """Remove student from a course. If class if full and a student is removed, then the first student on the waitlist g
+            ets popped off and added to the course.
         
         Attributes:
             student(Student): Student to be removed
         
         """
-        
         if student in self.enrollments:
             self.enrollments.remove(student)
-            self.slots += 1
+            self.current_enrollment -= 1
             print(f"{student.name} has been removed from {self.course_name}, {self.section_number}")
+        
             if self.waitlist:
                 student1 = self.waitlist.pop(0)
                 self.enrollments.append(student1)
-                self.slots -= 1
-                print(f"{student1} has been enrolled in {self.course_name}, {self.section_number}")
+                self.current_enrollment += 1
+                print(f"{student1.name} has been enrolled in {self.course_name}, {self.section_number}")
+                
         elif student in self.waitlist:
             self.waitlist.remove(student)
-            print(f"{student.name} has been removed for the waitlist from {self.course_name}, {self.section_number}")
+            print(f"{student.name} has been removed from the waitlist for {self.course_name}, {self.section_number}")
+        
         else:
              print(f"Error: {student.name} is not enrolled in {self.course_name}, {self.section_number}.")
+<<<<<<< HEAD
         
     def get_course_roster(self):
         """Returns courses a student is currently taking.
@@ -166,6 +200,19 @@ class Course:
         
         Returns:
             Schedule of courses for student.        
+=======
+            
+    
+    def get_student_enrollments(self,student):
+        """Returns the current schedule of a student
+        
+        Attributes:
+            student(str): The student schedule that is being shown
+            
+        Returns:
+            The students schedule
+    
+>>>>>>> b6f0f04 (fixed add/remove methods and got all the code to run correctly)
         """
         schedule = [self] if student in self.enrollments else []
         for course in self.enrollments:
@@ -174,12 +221,25 @@ class Course:
         return schedule
     
     def __str__(self):
+<<<<<<< HEAD
         """Returns status of a course.
         
         Returns:
             Course status in readable format. 
         """
         return f"{self.course_name} ({self.section_number}), Enrollment: {len(self.enrollments)}/{self.slots}, Waitlist: {len(self.waitlist)}"  
+=======
+        """Informal string representation 
+        
+        Returns:
+            Informal string representation of the course name, section number, student enrollments and waitlist
+        
+        
+        """
+        
+        return f"{self.course_name} {self.section_number}, Enrollment: {self.enrollments},Waitlist: {self.waitlist}"
+        
+>>>>>>> b6f0f04 (fixed add/remove methods and got all the code to run correctly)
     
 def main(file_path):
         """Adds, drops, or shows schedule of an inputted student using a filepath of courses.
@@ -188,14 +248,21 @@ def main(file_path):
             filepath(str): File path for target file
     
         Side effects:
+<<<<<<< HEAD
             Prints to the console.
         """
+=======
+             Opens a file and prints to the console.
+        
+        """
+    
+>>>>>>> b6f0f04 (fixed add/remove methods and got all the code to run correctly)
         with open(file_path, 'r', encoding='utf-8') as f:
             coursedata = json.load(f)
         courses_data = coursedata['courses']
         courses = []
         for course_data in courses_data:
-            course = Course(course_data['course_name'], course_data['section_number'], course_data['slots'])
+            course = Course(course_data['course_name'], course_data['section_number'], course_data['credits'])
             courses.append(course)
     
     
@@ -220,25 +287,39 @@ def main(file_path):
             if choice == "1":
                 course_name = input("Enter course name: ")
                 section_number = input("Enter section number: ")
-                slots = input("Enter number of slots available: ")
-                my_course = Course(course_name, section_number, slots)
-
-                my_course.add_student(student)
+                credits = int(input("Enter number of credits: "))
+                for course in courses:
+                     if course.course_name == course_name and course.section_number == section_number and course.credits == credits:
+                         course.add_student(student)
+                         break
+                else:
+                     print(f"Error: {course_name} {section_number} not found.")
+                    
+               
+                
             elif choice == "2":
                 course_name = input("Enter course name: ")
                 section_number = input("Enter section number: ")
-                slots = input("Enter number of slots available: ")
-                my_course = Course(course_name, section_number, slots)
-
-                my_course.remove_student(student)
+                credits = int(input("Enter number of credits: "))
+                for course in courses:
+                    if course.course_name == course_name and course.section_number == section_number and course.credits == credits:
+                        course.remove_student(student)
+                        break
+                    else:
+                         print(f"Error: {course_name} {section_number} not found.")
+                         
             elif choice == "3":
-                schedule = course.get_student_enrollments(student)
-                print("Enrollment Schedule:")
+                schedule= []
+                for course in courses:
+                    if student in course.enrollments:
+                         schedule.append(f"{course.course_name} {course.section_number}")
+                print("Enrollement Schedule:")
                 for course in schedule:
                     print(course)
                 
             elif choice == "4":
                 break
+            
             else:
                 print("Invalid choice. Please enter 1, 2, or 3.")
     
